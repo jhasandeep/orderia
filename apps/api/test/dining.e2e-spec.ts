@@ -113,6 +113,8 @@ describe("QR table ordering", () => {
     const after = await http(app).get(`/api/v1/public/orders/${order.code}`).expect(200);
     expect(after.body).toMatchObject({ paymentStatus: "PAID", paidMinor: 58000 });
     expect(after.body.payments[0]).toMatchObject({ method: "UPI_QR", status: "PAID" });
+    expect(after.body.paymentMethods).toEqual(["CASH", "UPI_QR"]);
+    expect(after.body.business.name).toBe("Spice Hub");
     await http(app).post(`/api/v1/public/orders/${order.code}/payments`).send({ method: "CASH" }).expect(409);
     await http(app).post(`/api/v1/public/orders/NOPE00/payments`).send({ method: "CASH" }).expect(404);
     await http(app).get(`/api/v1/businesses/${biz.id}/payments`).set(auth(kitchen.token)).expect(403); // the kitchen cannot see money

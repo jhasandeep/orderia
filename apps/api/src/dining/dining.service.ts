@@ -195,8 +195,17 @@ export class DiningService {
   async orderByCode(code: string) {
     const o = await this.orders.findOne({ where: { code: code.trim().toUpperCase() }, relations: { items: true, table: true } });
     if (!o) throw new NotFoundException("Order not found.");
-    const payments = await this.payments.find({ where: { orderId: o.id }, order: { createdAt: "DESC" } });
-    return { ...this.view(o), payments: payments.map((p) => ({ id: p.id, method: p.method, status: p.status, amountMinor: p.amountMinor })) };
+    const [payments, business, pay] = await Promise.all([
+      this.payments.find({ where: { orderId: o.id }, order: { createdAt: "DESC" } }),
+      this.businesses.findOneOrFail({ where: { id: o.businessId } }),
+      this.paymentSettings.findOne({ where: { businessId: o.businessId } }),
+    ]);
+    return {
+      ...this.view(o),
+      business: { name: business.name, currency: business.currency, slug: business.slug },
+      paymentMethods: pay?.enabledMethods ?? ["CASH"],
+      payments: payments.map((p) => ({ id: p.id, method: p.method, status: p.status, amountMinor: p.amountMinor })),
+    };
   }
 
   // ---- staff: orders

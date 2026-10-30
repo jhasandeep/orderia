@@ -1,0 +1,14 @@
+{
+  "name": "orderia",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Multi-purpose booking platform: appointments for hotels, salons, parlours and doctors, plus QR table ordering and payments.",
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev:api": "npm run start:dev -w apps/api",
+    "dev:web": "npm run dev -w apps/web",
+    "build": "npm run build -w apps/api && npm run build -w apps/web",
+    "test": "npm run test -w apps/api",
+    "seed": "npm run seed -w apps/api"
+  }
+}
